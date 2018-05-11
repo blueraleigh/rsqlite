@@ -1,0 +1,11 @@
+Package: rsqlite
+Type: Package
+Title: rsqlite
+Version: 1.0
+Date: 2018-01-24
+Author: Michael C. Grundler
+Maintainer: Michael C. Grundler <mcgrundler@gmail.com>
+Description: Provides a minimal, read-only interface to a SQLite database.
+NeedsCompilation: yes
+License: Public domain
+RoxygenNote: 6.0.1
