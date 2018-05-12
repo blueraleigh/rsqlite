@@ -14,20 +14,20 @@
 
 struct connection;
 struct connection {
-    sqlite3* db;            // sqlite3 database handle
+    sqlite3 *db;            // sqlite3 database handle
     int bufsize;            // size of result buffer
     SEXP name;              // name of the database
 };
 
 
-struct connection* connection_init(const char* dbname);
-struct connection* connection_init(const char* dbname)
+struct connection* connection_init(const char *dbname);
+struct connection* connection_init(const char *dbname)
 {
-    struct connection* db = Calloc(1, struct connection);
+    struct connection *db = Calloc(1, struct connection);
     int rc = sqlite3_open_v2(dbname, &(db->db), SQLITE_OPEN_READONLY, NULL);
 
     if (rc) {
-        const char* errmsg = sqlite3_errmsg(db->db);
+        const char *errmsg = sqlite3_errmsg(db->db);
         sqlite3_close_v2(db->db);
         Free(db);
         error(errmsg);
@@ -42,8 +42,8 @@ struct connection* connection_init(const char* dbname)
 }
 
 
-void connection_free(struct connection* db);
-void connection_free(struct connection* db)
+void connection_free(struct connection *db);
+void connection_free(struct connection *db)
 {
     if (db == NULL)
         return;
@@ -58,7 +58,7 @@ void connection_close(SEXP rdb)
 {
     if (TYPEOF(rdb) == NILSXP)
         return;
-    struct connection* db = (struct connection*)R_ExternalPtrAddr(rdb);
+    struct connection *db = (struct connection *)R_ExternalPtrAddr(rdb);
     sqlite3_close_v2(db->db);
     db->db = NULL;
     return;
@@ -70,7 +70,7 @@ void connection_destroy(SEXP rdb)
 {
     if (TYPEOF(rdb) == NILSXP)
         return;
-    struct connection* db = (struct connection*)R_ExternalPtrAddr(rdb);
+    struct connection *db = (struct connection *)R_ExternalPtrAddr(rdb);
     connection_free(db);
     R_ClearExternalPtr(rdb);
     return;
@@ -78,8 +78,8 @@ void connection_destroy(SEXP rdb)
 
 
 // callback to invoke for processing a row of query results
-SEXP process_row(sqlite3_stmt* stmt);
-SEXP process_row(sqlite3_stmt* stmt)
+SEXP process_row(sqlite3_stmt *stmt);
+SEXP process_row(sqlite3_stmt *stmt)
 {
     int ncol = sqlite3_column_count(stmt);
     SEXP row = PROTECT(allocVector(VECSXP, ncol));
@@ -98,7 +98,7 @@ SEXP process_row(sqlite3_stmt* stmt)
             case SQLITE_TEXT:
                 field = PROTECT(allocVector(STRSXP, 1));
                 SET_STRING_ELT(field, 0, mkChar(
-                    (const char*)sqlite3_column_text(stmt, i)));
+                    (const char *)sqlite3_column_text(stmt, i)));
                 break;
             case SQLITE_NULL:
             case SQLITE_BLOB:
@@ -151,7 +151,7 @@ SEXP rsqlite_disconnect(SEXP rdb)
 SEXP rsqlite_dbinfo(SEXP rdb);
 SEXP rsqlite_dbinfo(SEXP rdb)
 {
-    struct connection* db = (struct connection*)R_ExternalPtrAddr(rdb);
+    struct connection *db = (struct connection *)R_ExternalPtrAddr(rdb);
     if (db->db == NULL)
         error("The database connection is closed.");
     SEXP dbinfo = PROTECT(allocVector(VECSXP, 2));
@@ -171,7 +171,7 @@ SEXP rsqlite_dbinfo(SEXP rdb)
 SEXP rsqlite_dblimit(SEXP rdb, SEXP limit);
 SEXP rsqlite_dblimit(SEXP rdb, SEXP limit)
 {
-    struct connection* db = (struct connection*)R_ExternalPtrAddr(rdb);
+    struct connection *db = (struct connection *)R_ExternalPtrAddr(rdb);
     if (db->db == NULL)
         error("The database connection is closed.");
     db->bufsize = INTEGER(limit)[0];
@@ -182,10 +182,10 @@ SEXP rsqlite_dblimit(SEXP rdb, SEXP limit)
 SEXP rsqlite_eval(SEXP rdb, SEXP sql);
 SEXP rsqlite_eval(SEXP rdb, SEXP sql)
 {
-    const char* zSql = CHAR(STRING_ELT(sql, 0));  // sql statement to process
-    sqlite3_stmt* pStmt;     // prepared sql statement
+    const char *zSql = CHAR(STRING_ELT(sql, 0));  // sql statement to process
+    sqlite3_stmt *pStmt;     // prepared sql statement
 
-    struct connection* db = (struct connection*)R_ExternalPtrAddr(rdb);
+    struct connection *db = (struct connection *)R_ExternalPtrAddr(rdb);
     if (db->db == NULL)
         error("The database connection is closed.");
     sqlite3_prepare_v2(db->db, zSql, -1, &pStmt, NULL);
