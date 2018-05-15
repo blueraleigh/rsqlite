@@ -1,6 +1,6 @@
 #include <R.h>
 #include <Rinternals.h>
-#include "include/sqlite3.h"
+#include "sqlite3.h"
 
 
 /**********************************************************************
