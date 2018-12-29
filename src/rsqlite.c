@@ -229,3 +229,25 @@ SEXP rsqlite_eval(SEXP rdb, SEXP sql)
     UNPROTECT(2);
     return res;
 }
+
+
+#include <R_ext/Rdynload.h>
+#include <R_ext/Visibility.h>
+
+#define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
+
+static const R_CallMethodDef CallEntries[] = {
+    CALLDEF(rsqlite_connect, 2),
+    CALLDEF(rsqlite_disconnect, 1),
+    CALLDEF(rsqlite_dbinfo, 1),
+    CALLDEF(rsqlite_dblimit, 2),
+    CALLDEF(rsqlite_eval, 2),
+    {NULL, NULL, 0}
+};
+
+void attribute_visible R_init_rsqlite(DllInfo *info)
+{
+    R_registerRoutines(info, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(info, FALSE);
+    R_forceSymbols(info, TRUE);
+}

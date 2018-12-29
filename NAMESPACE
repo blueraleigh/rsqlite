@@ -1,2 +1,2 @@
-useDynLib(rsqlite)
+useDynLib(rsqlite, .registration=TRUE)
 exportPattern("^[[:alpha:]]+")
